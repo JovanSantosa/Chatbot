@@ -1,4 +1,4 @@
-# UTN Bot — FAQ Kampus Cerdas 🎓
+# LTU Bot — FAQ Kampus Cerdas 🎓
 
 Aplikasi web chatbot FAQ kampus berbasis AI menggunakan model lokal **Ollama** dengan model `qwen3:4b-instruct`. Didesain khusus untuk membantu mahasiswa dan calon mahasiswa menemukan informasi seputar kampus dengan cepat dan akurat.
 
@@ -65,6 +65,7 @@ start index.html
 ```
 
 > ⚠️ **Catatan CORS**: Jika mengalami error CORS saat mengakses Ollama dari browser, jalankan dengan `live server` atau tambahkan environment variable:
+>
 > ```
 > OLLAMA_ORIGINS=* ollama serve
 > ```
@@ -86,12 +87,12 @@ npx serve . -p 3000
 
 Semua konfigurasi dapat diubah langsung dari panel sidebar kanan:
 
-| Tab | Isi |
-|-----|-----|
-| **Prompt** | System prompt FAQ kampus (bisa diedit) |
-| **Memory** | Data kampus dalam format JSON |
-| **Model** | Endpoint, nama model, temperature, top_p, num_ctx |
-| **Request** | Preview & copy request body ke Ollama |
+| Tab         | Isi                                               |
+| ----------- | ------------------------------------------------- |
+| **Prompt**  | System prompt FAQ kampus (bisa diedit)            |
+| **Memory**  | Data kampus dalam format JSON                     |
+| **Model**   | Endpoint, nama model, temperature, top_p, num_ctx |
+| **Request** | Preview & copy request body ke Ollama             |
 
 ### Konfigurasi Default
 
@@ -143,6 +144,7 @@ Chatbot dikonfigurasi untuk:
 ## 🛠️ Mode Demo (Offline)
 
 Jika Ollama tidak aktif, aplikasi otomatis masuk ke **Demo Mode**:
+
 - Status badge menunjukkan "Ollama Offline (Demo Mode)"
 - Chatbot tetap menjawab berdasarkan mock data
 - Cocok untuk demo UI tanpa perlu koneksi ke Ollama
@@ -188,4 +190,4 @@ Aplikasi menggunakan endpoint `POST /api/chat` dengan format:
 
 ---
 
-*Dibuat dengan ❤️ untuk civitas akademika kampus*
+_Dibuat dengan ❤️ untuk civitas akademika kampus_

@@ -4,45 +4,112 @@
 
 // ─── State aplikasi ────────────────────────────────────────
 const AppState = {
-  chatHistory: [],         // Riwayat percakapan [{role, content}]
-  isLoading: false,        // Status loading saat menunggu response
-  mockMode: false,         // True jika Ollama tidak aktif
-  modelReady: false,       // True jika model sudah loaded di VRAM
-  useMemory: true,         // Apakah menggunakan memory kampus
+  chatHistory: [], // Riwayat percakapan [{role, content}]
+  isLoading: false, // Status loading saat menunggu response
+  mockMode: false, // True jika Ollama tidak aktif
+  modelReady: false, // True jika model sudah loaded di VRAM
+  useMemory: true, // Apakah menggunakan memory kampus
   ollamaBaseUrl: "http://localhost:11434",
 
   // Getter: konfigurasi model dari form
   get modelConfig() {
     return {
-      model: document.getElementById("cfg-model")?.value || DEFAULT_MODEL_CONFIG.model,
+      model:
+        document.getElementById("cfg-model")?.value ||
+        DEFAULT_MODEL_CONFIG.model,
       stream: true, // Selalu gunakan streaming
       options: {
-        temperature: parseFloat(document.getElementById("cfg-temperature")?.value) || 0.1,
+        temperature:
+          parseFloat(document.getElementById("cfg-temperature")?.value) || 0.1,
         top_p: parseFloat(document.getElementById("cfg-top-p")?.value) || 0.9,
-        num_ctx: parseInt(document.getElementById("cfg-num-ctx")?.value) || 4096
-      }
+        num_ctx:
+          parseInt(document.getElementById("cfg-num-ctx")?.value) || 4096,
+      },
     };
   },
 
   // Getter: endpoint Ollama dari form
   get endpoint() {
-    return (document.getElementById("cfg-endpoint")?.value || this.ollamaBaseUrl) + "/api/chat";
+    return (
+      (document.getElementById("cfg-endpoint")?.value || this.ollamaBaseUrl) +
+      "/api/chat"
+    );
   },
 
   // Getter: system prompt dari textarea
   get systemPrompt() {
-    return document.getElementById("system-prompt")?.value || DEFAULT_SYSTEM_PROMPT;
+    return (
+      document.getElementById("system-prompt")?.value || DEFAULT_SYSTEM_PROMPT
+    );
   },
 
   // Getter: campus memory dari textarea (parsed JSON)
   get campusMemory() {
     try {
-      return JSON.parse(document.getElementById("campus-memory")?.value || "{}");
+      return JSON.parse(
+        document.getElementById("campus-memory")?.value || "{}",
+      );
     } catch {
       return null;
     }
-  }
+  },
 };
+
+function loadSavedSettings() {
+  const raw = localStorage.getItem("ltuBotSettings");
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function saveSettings() {
+  const settings = {
+    endpoint:
+      document.getElementById("cfg-endpoint")?.value || AppState.ollamaBaseUrl,
+    model:
+      document.getElementById("cfg-model")?.value || DEFAULT_MODEL_CONFIG.model,
+    temperature:
+      parseFloat(document.getElementById("cfg-temperature")?.value) ||
+      DEFAULT_MODEL_CONFIG.options.temperature,
+    top_p:
+      parseFloat(document.getElementById("cfg-top-p")?.value) ||
+      DEFAULT_MODEL_CONFIG.options.top_p,
+    num_ctx:
+      parseInt(document.getElementById("cfg-num-ctx")?.value) ||
+      DEFAULT_MODEL_CONFIG.options.num_ctx,
+    useMemory:
+      document.getElementById("cfg-use-memory")?.checked ?? AppState.useMemory,
+  };
+  localStorage.setItem("ltuBotSettings", JSON.stringify(settings));
+}
+
+function applySavedSettings() {
+  const saved = loadSavedSettings();
+  if (!saved) return;
+
+  const endpointInput = document.getElementById("cfg-endpoint");
+  const modelInput = document.getElementById("cfg-model");
+  const tempInput = document.getElementById("cfg-temperature");
+  const topPInput = document.getElementById("cfg-top-p");
+  const numCtxInput = document.getElementById("cfg-num-ctx");
+  const useMemoryInput = document.getElementById("cfg-use-memory");
+
+  if (endpointInput)
+    endpointInput.value = saved.endpoint || AppState.ollamaBaseUrl;
+  if (modelInput) modelInput.value = saved.model || DEFAULT_MODEL_CONFIG.model;
+  if (tempInput)
+    tempInput.value =
+      saved.temperature ?? DEFAULT_MODEL_CONFIG.options.temperature;
+  if (topPInput)
+    topPInput.value = saved.top_p ?? DEFAULT_MODEL_CONFIG.options.top_p;
+  if (numCtxInput)
+    numCtxInput.value = saved.num_ctx ?? DEFAULT_MODEL_CONFIG.options.num_ctx;
+  if (useMemoryInput)
+    useMemoryInput.checked = saved.useMemory ?? AppState.useMemory;
+}
 
 // ─── Inisialisasi aplikasi ─────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
@@ -59,18 +126,37 @@ document.addEventListener("DOMContentLoaded", async () => {
 function initUI() {
   // Isi nilai default di panel konfigurasi
   document.getElementById("system-prompt").value = DEFAULT_SYSTEM_PROMPT;
-  document.getElementById("campus-memory").value = JSON.stringify(DEFAULT_CAMPUS_MEMORY, null, 2);
+  document.getElementById("campus-memory").value = JSON.stringify(
+    DEFAULT_CAMPUS_MEMORY,
+    null,
+    2,
+  );
   document.getElementById("cfg-model").value = DEFAULT_MODEL_CONFIG.model;
-  document.getElementById("cfg-temperature").value = DEFAULT_MODEL_CONFIG.options.temperature;
-  document.getElementById("cfg-top-p").value = DEFAULT_MODEL_CONFIG.options.top_p;
-  document.getElementById("cfg-num-ctx").value = DEFAULT_MODEL_CONFIG.options.num_ctx;
+  document.getElementById("cfg-temperature").value =
+    DEFAULT_MODEL_CONFIG.options.temperature;
+  document.getElementById("cfg-top-p").value =
+    DEFAULT_MODEL_CONFIG.options.top_p;
+  document.getElementById("cfg-num-ctx").value =
+    DEFAULT_MODEL_CONFIG.options.num_ctx;
   document.getElementById("cfg-endpoint").value = AppState.ollamaBaseUrl;
   document.getElementById("cfg-use-memory").checked = AppState.useMemory;
 
+  // Muat konfigurasi tersimpan jika ada
+  applySavedSettings();
+  const tempLabel = document.getElementById("temperature-label");
+  if (tempLabel) {
+    tempLabel.textContent =
+      document.getElementById("cfg-temperature")?.value ||
+      String(DEFAULT_MODEL_CONFIG.options.temperature);
+  }
+
   // Update label temperature secara real-time
-  document.getElementById("cfg-temperature").addEventListener("input", function () {
-    document.getElementById("temperature-label").textContent = this.value;
-  });
+  document
+    .getElementById("cfg-temperature")
+    .addEventListener("input", function () {
+      document.getElementById("temperature-label").textContent = this.value;
+      saveSettings();
+    });
 
   // Update badge model
   updateModelBadge();
@@ -79,20 +165,32 @@ function initUI() {
     // Reset model ready state saat nama model berubah
     AppState.modelReady = false;
     refreshModelStatus();
+    saveSettings();
   });
+
+  document.getElementById("cfg-top-p").addEventListener("change", saveSettings);
+  document
+    .getElementById("cfg-num-ctx")
+    .addEventListener("change", saveSettings);
+  document
+    .getElementById("cfg-endpoint")
+    .addEventListener("change", saveSettings);
 
   // Update useMemory state
   document.getElementById("cfg-use-memory").addEventListener("change", (e) => {
     AppState.useMemory = e.target.checked;
+    saveSettings();
   });
 
   // Input pertanyaan: Enter untuk kirim
-  document.getElementById("user-input").addEventListener("keydown", function (e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
+  document
+    .getElementById("user-input")
+    .addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
 
   // Auto-resize textarea input
   document.getElementById("user-input").addEventListener("input", function () {
@@ -104,37 +202,35 @@ function initUI() {
   document.getElementById("send-btn").addEventListener("click", sendMessage);
 
   // Tombol reset chat
-  document.getElementById("reset-chat-btn").addEventListener("click", resetChat);
+  document
+    .getElementById("reset-chat-btn")
+    .addEventListener("click", resetChat);
 
   // Tombol load sample memory
-  document.getElementById("load-sample-btn").addEventListener("click", loadSampleMemory);
-
-  // Tombol generate request body
-  document.getElementById("generate-body-btn").addEventListener("click", generateRequestBodyPreview);
+  document
+    .getElementById("load-sample-btn")
+    .addEventListener("click", loadSampleMemory);
 
   // Tombol copy system prompt
   document.getElementById("copy-prompt-btn").addEventListener("click", () => {
-    copyToClipboard(document.getElementById("system-prompt").value, "System prompt disalin!");
-  });
-
-  // Tombol copy request body
-  document.getElementById("copy-body-btn").addEventListener("click", () => {
-    const bodyText = document.getElementById("request-body-preview").textContent;
-    if (bodyText && bodyText !== "Klik 'Generate' untuk melihat contoh request body.") {
-      copyToClipboard(bodyText, "Request body disalin!");
-    }
+    copyToClipboard(
+      document.getElementById("system-prompt").value,
+      "System prompt disalin!",
+    );
   });
 
   // Validasi JSON memory secara real-time
-  document.getElementById("campus-memory").addEventListener("input", validateMemoryJSON);
+  document
+    .getElementById("campus-memory")
+    .addEventListener("input", validateMemoryJSON);
 
   // Tab panel sidebar
-  document.querySelectorAll(".tab-btn").forEach(btn => {
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => switchTab(btn.dataset.tab));
   });
 
   // Quick questions
-  document.querySelectorAll(".quick-q").forEach(btn => {
+  document.querySelectorAll(".quick-q").forEach((btn) => {
     btn.addEventListener("click", () => {
       document.getElementById("user-input").value = btn.textContent;
       sendMessage();
@@ -142,13 +238,16 @@ function initUI() {
   });
 
   // Toggle sidebar di mobile
-  document.getElementById("toggle-sidebar-btn")?.addEventListener("click", toggleSidebar);
+  document
+    .getElementById("toggle-sidebar-btn")
+    ?.addEventListener("click", toggleSidebar);
   document.getElementById("overlay")?.addEventListener("click", toggleSidebar);
 }
 
 // ─── Cek status koneksi Ollama ─────────────────────────────
 async function checkOllamaConnection() {
-  const baseUrl = document.getElementById("cfg-endpoint")?.value || AppState.ollamaBaseUrl;
+  const baseUrl =
+    document.getElementById("cfg-endpoint")?.value || AppState.ollamaBaseUrl;
   const status = await checkOllamaStatus(baseUrl);
 
   if (status.ok) {
@@ -169,8 +268,10 @@ async function checkOllamaConnection() {
 async function refreshModelStatus() {
   if (AppState.mockMode) return;
 
-  const baseUrl = document.getElementById("cfg-endpoint")?.value || AppState.ollamaBaseUrl;
-  const modelName = document.getElementById("cfg-model")?.value || DEFAULT_MODEL_CONFIG.model;
+  const baseUrl =
+    document.getElementById("cfg-endpoint")?.value || AppState.ollamaBaseUrl;
+  const modelName =
+    document.getElementById("cfg-model")?.value || DEFAULT_MODEL_CONFIG.model;
 
   const isReady = await checkModelReady(baseUrl, modelName);
   AppState.modelReady = isReady;
@@ -230,7 +331,9 @@ async function sendMessage() {
   try {
     campusMemory = JSON.parse(memoryText);
   } catch {
-    showMemoryError("Format JSON memory tidak valid. Perbaiki JSON sebelum mengirim pesan.");
+    showMemoryError(
+      "Format JSON memory tidak valid. Perbaiki JSON sebelum mengirim pesan.",
+    );
     switchTab("memory");
     return;
   }
@@ -256,14 +359,13 @@ async function sendMessage() {
       responseText = getMockResponse(userMessage, campusMemory);
       removeLoadingBubble(loadingId);
       appendMessage("assistant", responseText);
-
     } else {
       // ── REAL MODE: Kirim ke Ollama dengan STREAMING ──
       const messages = buildMessages(
         AppState.systemPrompt,
         AppState.useMemory ? campusMemory : null, // Kirim null jika memory dimatikan
         AppState.chatHistory.slice(0, -1), // Exclude pesan user yang baru saja ditambah
-        userMessage
+        userMessage,
       );
 
       const config = AppState.modelConfig;
@@ -271,7 +373,7 @@ async function sendMessage() {
         config.model,
         config.options,
         true, // stream: true
-        messages
+        messages,
       );
 
       // Tampilkan "thinking" bubble sementara model memproses
@@ -308,7 +410,7 @@ async function sendMessage() {
               AppState.modelReady = true;
               updateStatusBadge("ready");
             }
-          }
+          },
         );
       } catch (streamErr) {
         clearInterval(thinkingTimer);
@@ -325,14 +427,14 @@ async function sendMessage() {
     if (AppState.chatHistory.length > 40) {
       AppState.chatHistory = AppState.chatHistory.slice(-40);
     }
-
   } catch (err) {
     removeLoadingBubble(loadingId);
 
     // Tampilkan error di chat
-    const helpMsg = err instanceof OllamaError
-      ? getOllamaErrorHelp(err)
-      : `❌ Error tak terduga: ${err.message}`;
+    const helpMsg =
+      err instanceof OllamaError
+        ? getOllamaErrorHelp(err)
+        : `❌ Error tak terduga: ${err.message}`;
 
     appendMessage("error", helpMsg);
 
@@ -372,14 +474,17 @@ function appendMessage(role, content) {
 
   const meta = document.createElement("div");
   meta.className = "message-meta";
-  meta.textContent = role === "user" ? "Kamu" : role === "error" ? "⚠️ System" : "🤖 UTN Bot";
+  meta.textContent =
+    role === "user" ? "Kamu" : role === "error" ? "⚠️ System" : "🤖 LTU Bot";
 
   if (role === "assistant") {
     const copyBtn = document.createElement("button");
     copyBtn.className = "msg-copy-btn";
     copyBtn.title = "Salin jawaban";
     copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
-    copyBtn.addEventListener("click", () => copyToClipboard(content, "Disalin!"));
+    copyBtn.addEventListener("click", () =>
+      copyToClipboard(content, "Disalin!"),
+    );
     meta.appendChild(copyBtn);
   }
 
@@ -403,7 +508,7 @@ function appendStreamingBubble() {
 
   const meta = document.createElement("div");
   meta.className = "message-meta";
-  meta.textContent = "🤖 UTN Bot";
+  meta.textContent = "🤖 LTU Bot";
 
   // Streaming indicator
   const streamIndicator = document.createElement("span");
@@ -443,7 +548,10 @@ function updateStreamingBubble({ bubble }, fullContent) {
 /**
  * Finalize streaming bubble — render markdown penuh, hapus cursor & indicator.
  */
-function finalizeStreamingBubble({ wrapper, bubble, meta, streamIndicator }, fullContent) {
+function finalizeStreamingBubble(
+  { wrapper, bubble, meta, streamIndicator },
+  fullContent,
+) {
   // Render markdown
   bubble.innerHTML = parseMarkdown(fullContent);
   bubble.classList.remove("streaming");
@@ -456,7 +564,9 @@ function finalizeStreamingBubble({ wrapper, bubble, meta, streamIndicator }, ful
   copyBtn.className = "msg-copy-btn";
   copyBtn.title = "Salin jawaban";
   copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
-  copyBtn.addEventListener("click", () => copyToClipboard(fullContent, "Disalin!"));
+  copyBtn.addEventListener("click", () =>
+    copyToClipboard(fullContent, "Disalin!"),
+  );
   meta.appendChild(copyBtn);
 
   // Scroll ke bawah
@@ -470,19 +580,22 @@ function finalizeStreamingBubble({ wrapper, bubble, meta, streamIndicator }, ful
  */
 const _thinkingStart = {};
 function showThinkingProgress({ bubble, wrapper }) {
-  const id = wrapper._thinkingId = wrapper._thinkingId || Date.now();
+  const id = (wrapper._thinkingId = wrapper._thinkingId || Date.now());
   _thinkingStart[id] = _thinkingStart[id] || Date.now();
   const elapsed = Math.round((Date.now() - _thinkingStart[id]) / 1000);
 
   const phases = [
-    { max: 5,  msg: "Memproses konteks..." },
+    { max: 5, msg: "Memproses konteks..." },
     { max: 15, msg: "Model sedang membaca data kampus..." },
     { max: 30, msg: "Model sedang berpikir... ⏳" },
     { max: 60, msg: "Hampir selesai, harap sabar... 🧠" },
-    { max: Infinity, msg: `Masih memproses (${elapsed}d)... Model mungkin perlu waktu lebih lama.` }
+    {
+      max: Infinity,
+      msg: `Masih memproses (${elapsed}d)... Model mungkin perlu waktu lebih lama.`,
+    },
   ];
 
-  const phase = phases.find(p => elapsed <= p.max);
+  const phase = phases.find((p) => elapsed <= p.max);
   bubble.innerHTML = `<span class="thinking-label">${phase.msg}</span> <span class="stream-cursor">▍</span>`;
 }
 
@@ -505,7 +618,7 @@ function appendLoadingBubble() {
 
   const meta = document.createElement("div");
   meta.className = "message-meta";
-  meta.textContent = "🤖 UTN Bot";
+  meta.textContent = "🤖 LTU Bot";
 
   const bubble = document.createElement("div");
   bubble.className = "message-bubble assistant loading-bubble";
@@ -551,10 +664,10 @@ function renderWelcomeMessage() {
   chatPanel.innerHTML = `
     <div class="welcome-state">
       <div class="welcome-icon">🎓</div>
-      <h2 class="welcome-title">Selamat Datang di UTN Bot</h2>
-      <p class="welcome-subtitle">Asisten virtual FAQ Universitas Teknologi Nusantara. Tanyakan apa saja seputar kampus!</p>
+      <h2 class="welcome-title">Selamat Datang di LTU Bot</h2>
+      <p class="welcome-subtitle">Asisten virtual FAQ 嶺東科技大學. Tanyakan apa saja seputar kampus!</p>
       <div class="quick-questions-grid">
-        ${QUICK_QUESTIONS.map(q => `<button class="quick-q" onclick="quickAsk('${q.replace(/'/g, "\\'")}')"> ${q}</button>`).join("")}
+        ${QUICK_QUESTIONS.map((q) => `<button class="quick-q" onclick="quickAsk('${q.replace(/'/g, "\\'")}')"> ${q}</button>`).join("")}
       </div>
     </div>
   `;
@@ -576,49 +689,21 @@ function quickAsk(question) {
  * Load ulang sample memory kampus ke textarea.
  */
 function loadSampleMemory() {
-  document.getElementById("campus-memory").value = JSON.stringify(DEFAULT_CAMPUS_MEMORY, null, 2);
+  document.getElementById("campus-memory").value = JSON.stringify(
+    DEFAULT_CAMPUS_MEMORY,
+    null,
+    2,
+  );
   clearMemoryError();
   showToast("Sample memory kampus berhasil dimuat!");
-}
-
-/**
- * Generate dan tampilkan preview request body.
- */
-function generateRequestBodyPreview() {
-  const memoryText = document.getElementById("campus-memory")?.value || "{}";
-  let campusMemory;
-  try {
-    campusMemory = JSON.parse(memoryText);
-  } catch {
-    showMemoryError("JSON memory tidak valid. Perbaiki terlebih dahulu.");
-    switchTab("memory");
-    return;
-  }
-
-  const config = AppState.modelConfig;
-  const messages = buildMessages(
-    AppState.systemPrompt,
-    AppState.useMemory ? campusMemory : null,
-    [],
-    "[Pertanyaan user akan muncul di sini]"
-  );
-  const body = buildRequestBody(config.model, config.options, true, messages);
-
-  const preview = JSON.parse(JSON.stringify(body));
-  preview.messages = preview.messages.map((m, i) => ({
-    role: m.role,
-    content: i === 1 ? "[... data memory kampus (dipersingkat) ...]" : m.content.substring(0, 200) + (m.content.length > 200 ? "..." : "")
-  }));
-
-  document.getElementById("request-body-preview").textContent = JSON.stringify(preview, null, 2);
-  showToast("Request body berhasil di-generate!");
 }
 
 /**
  * Update badge model aktif.
  */
 function updateModelBadge() {
-  const model = document.getElementById("cfg-model")?.value || DEFAULT_MODEL_CONFIG.model;
+  const model =
+    document.getElementById("cfg-model")?.value || DEFAULT_MODEL_CONFIG.model;
   document.getElementById("active-model-badge").textContent = model;
 }
 
@@ -626,10 +711,16 @@ function updateModelBadge() {
  * Switch tab di sidebar.
  */
 function switchTab(tabName) {
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document
+    .querySelectorAll(".tab-btn")
+    .forEach((b) => b.classList.remove("active"));
+  document
+    .querySelectorAll(".tab-panel")
+    .forEach((p) => p.classList.remove("active"));
 
-  document.querySelector(`.tab-btn[data-tab="${tabName}"]`)?.classList.add("active");
+  document
+    .querySelector(`.tab-btn[data-tab="${tabName}"]`)
+    ?.classList.add("active");
   document.getElementById(`tab-${tabName}`)?.classList.add("active");
 }
 
@@ -675,8 +766,9 @@ function parseMarkdown(text) {
     .replace(/>/g, "&gt;");
 
   // Code blocks
-  html = html.replace(/```[\w]*\n?([\s\S]*?)```/g, (_, code) =>
-    `<pre><code>${code.trim()}</code></pre>`
+  html = html.replace(
+    /```[\w]*\n?([\s\S]*?)```/g,
+    (_, code) => `<pre><code>${code.trim()}</code></pre>`,
   );
 
   // Inline code
@@ -694,7 +786,7 @@ function parseMarkdown(text) {
 
   // Bullet list
   html = html.replace(/^[•\-\*] (.+)$/gm, "<li>$1</li>");
-  html = html.replace(/(<li>[\s\S]*?<\/li>\n?)+/g, m => `<ul>${m}</ul>`);
+  html = html.replace(/(<li>[\s\S]*?<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`);
 
   // Numbered list
   html = html.replace(/^\d+\. (.+)$/gm, "<li>$1</li>");
@@ -802,7 +894,7 @@ function clearMemoryError() {
  * Simulasi delay untuk mock mode.
  */
 function simulateDelay(ms) {
-  return new Promise(res => setTimeout(res, ms));
+  return new Promise((res) => setTimeout(res, ms));
 }
 
 // Render welcome message saat load

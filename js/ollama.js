@@ -18,21 +18,82 @@ function filterCampusMemory(memory, userMessage) {
 
   // Mapping keyword → key di campus memory
   const sections = [
-    { keys: ["daftar", "pendaftaran", "registrasi", "pmb", "syarat", "jalur"], field: "pendaftaran" },
-    { keys: ["biaya", "ukt", "spp", "bayar", "keuangan", "golongan"], field: "biaya_pendidikan" },
+    {
+      keys: ["daftar", "pendaftaran", "registrasi", "pmb", "syarat", "jalur"],
+      field: "pendaftaran",
+    },
+    {
+      keys: ["biaya", "ukt", "spp", "bayar", "keuangan", "golongan"],
+      field: "biaya_pendidikan",
+    },
     { keys: ["beasiswa", "kip", "bantuan", "keringanan"], field: "beasiswa" },
-    { keys: ["prodi", "jurusan", "program", "studi", "fakultas", "informatika", "manajemen", "akuntansi", "sipil", "elektro", "sistem informasi"], field: "fakultas_dan_prodi" },
-    { keys: ["krs", "akademik", "nilai", "transkip", "surat keterangan", "baak", "ips", "ipk", "semester", "skripsi"], field: "layanan_akademik" },
-    { keys: ["fasilitas", "lab", "perpustakaan", "wifi", "kantin", "masjid", "sport", "asrama", "gym", "kolam"], field: "fasilitas" },
-    { keys: ["kontak", "telepon", "email", "hubungi", "bagian"], field: "kontak_penting" },
-    { keys: ["jam", "buka", "tutup", "layanan", "operasional"], field: "jam_layanan_kampus" },
-    { keys: ["kalender", "jadwal", "uts", "uas", "ujian", "libur", "akademik"], field: "kalender_akademik" },
-    { keys: ["ukm", "kegiatan", "organisasi", "ormawa", "hima", "ekskul"], field: "unit_kegiatan_mahasiswa" }
+    {
+      keys: [
+        "prodi",
+        "jurusan",
+        "program",
+        "studi",
+        "fakultas",
+        "informatika",
+        "manajemen",
+        "akuntansi",
+        "sipil",
+        "elektro",
+        "sistem informasi",
+      ],
+      field: "fakultas_dan_prodi",
+    },
+    {
+      keys: [
+        "krs",
+        "akademik",
+        "nilai",
+        "transkip",
+        "surat keterangan",
+        "baak",
+        "ips",
+        "ipk",
+        "semester",
+        "skripsi",
+      ],
+      field: "layanan_akademik",
+    },
+    {
+      keys: [
+        "fasilitas",
+        "lab",
+        "perpustakaan",
+        "wifi",
+        "kantin",
+        "masjid",
+        "sport",
+        "asrama",
+        "gym",
+        "kolam",
+      ],
+      field: "fasilitas",
+    },
+    {
+      keys: ["kontak", "telepon", "email", "hubungi", "bagian"],
+      field: "kontak_penting",
+    },
+    {
+      keys: ["jam", "buka", "tutup", "layanan", "operasional"],
+      field: "jam_layanan_kampus",
+    },
+    {
+      keys: ["kalender", "jadwal", "uts", "uas", "ujian", "libur", "akademik"],
+      field: "kalender_akademik",
+    },
+    {
+      keys: ["ukm", "kegiatan", "organisasi", "ormawa", "hima", "ekskul"],
+      field: "unit_kegiatan_mahasiswa",
+    },
   ];
 
   let matched = false;
   for (const section of sections) {
-    if (section.keys.some(k => msg.includes(k))) {
+    if (section.keys.some((k) => msg.includes(k))) {
       if (memory[section.field]) {
         result[section.field] = memory[section.field];
         matched = true;
@@ -66,7 +127,7 @@ function buildMessages(systemPrompt, campusMemory, chatHistory, userMessage) {
   // System prompt utama
   messages.push({
     role: "system",
-    content: systemPrompt.trim()
+    content: systemPrompt.trim(),
   });
 
   // Smart filter: hanya sertakan bagian memory yang relevan dengan pertanyaan
@@ -75,13 +136,13 @@ function buildMessages(systemPrompt, campusMemory, chatHistory, userMessage) {
     const relevantMemory = filterCampusMemory(campusMemory, userMessage);
     messages.push({
       role: "system",
-      content: `DATA_KAMPUS:${JSON.stringify(relevantMemory)}`
+      content: `DATA_KAMPUS:${JSON.stringify(relevantMemory)}`,
     });
   } else {
     // Mode testing: tanpa memory
     messages.push({
       role: "system",
-      content: `[OLLAMA RUNNING WITHOUT CAMPUS MEMORY DATA FOR TESTING]`
+      content: `[OLLAMA RUNNING WITHOUT CAMPUS MEMORY DATA FOR TESTING]`,
     });
   }
 
@@ -89,14 +150,14 @@ function buildMessages(systemPrompt, campusMemory, chatHistory, userMessage) {
   for (const msg of chatHistory) {
     messages.push({
       role: msg.role,
-      content: msg.content
+      content: msg.content,
     });
   }
 
   // Pesan terbaru user
   messages.push({
     role: "user",
-    content: userMessage.trim()
+    content: userMessage.trim(),
   });
 
   return messages;
@@ -118,9 +179,9 @@ function buildRequestBody(model, options, stream, messages) {
     options: {
       temperature: parseFloat(options.temperature) || 0.1,
       top_p: parseFloat(options.top_p) || 0.9,
-      num_ctx: parseInt(options.num_ctx) || 4096
+      num_ctx: parseInt(options.num_ctx) || 4096,
     },
-    messages: messages
+    messages: messages,
   };
 }
 
@@ -148,19 +209,20 @@ async function sendToOllamaStream(endpoint, requestBody, onToken, onComplete) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(streamBody),
       // Timeout 10 menit — cukup untuk model loading + prompt eval + thinking
-      signal: AbortSignal.timeout(600000)
+      signal: AbortSignal.timeout(600000),
     });
   } catch (err) {
     if (err.name === "TimeoutError" || err.name === "AbortError") {
       throw new OllamaError(
         "timeout",
-        "Request timeout setelah 5 menit. Model mungkin tidak merespons."
+        "Request timeout setelah 5 menit. Model mungkin tidak merespons.",
       );
     }
     if (err.name === "TypeError" && err.message.includes("fetch")) {
       throw new OllamaError(
         "connection",
-        "Tidak dapat terhubung ke Ollama. Pastikan Ollama berjalan di " + endpoint
+        "Tidak dapat terhubung ke Ollama. Pastikan Ollama berjalan di " +
+          endpoint,
       );
     }
     throw new OllamaError("network", `Error jaringan: ${err.message}`);
@@ -179,13 +241,19 @@ async function sendToOllamaStream(endpoint, requestBody, onToken, onComplete) {
     if (response.status === 404) {
       throw new OllamaError(
         "model_not_found",
-        `Model "${requestBody.model}" tidak ditemukan. Jalankan: ollama pull ${requestBody.model}`
+        `Model "${requestBody.model}" tidak ditemukan. Jalankan: ollama pull ${requestBody.model}`,
       );
     }
     if (response.status === 500) {
-      throw new OllamaError("server_error", `Ollama server error: ${errorBody}`);
+      throw new OllamaError(
+        "server_error",
+        `Ollama server error: ${errorBody}`,
+      );
     }
-    throw new OllamaError("http_error", `HTTP ${response.status}: ${errorBody}`);
+    throw new OllamaError(
+      "http_error",
+      `HTTP ${response.status}: ${errorBody}`,
+    );
   }
 
   // Baca response sebagai stream
@@ -240,7 +308,9 @@ async function sendToOllamaStream(endpoint, requestBody, onToken, onComplete) {
         fullContent += token;
         onToken(token, fullContent);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
 
   onComplete(fullContent);
@@ -265,19 +335,20 @@ async function sendToOllama(endpoint, requestBody) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody),
-      signal: AbortSignal.timeout(300000) // 5 menit
+      signal: AbortSignal.timeout(300000), // 5 menit
     });
   } catch (err) {
     if (err.name === "TimeoutError" || err.name === "AbortError") {
       throw new OllamaError(
         "timeout",
-        "Request timeout setelah 5 menit. Model mungkin sedang memuat atau sibuk."
+        "Request timeout setelah 5 menit. Model mungkin sedang memuat atau sibuk.",
       );
     }
     if (err.name === "TypeError" && err.message.includes("fetch")) {
       throw new OllamaError(
         "connection",
-        "Tidak dapat terhubung ke Ollama. Pastikan Ollama berjalan di " + endpoint
+        "Tidak dapat terhubung ke Ollama. Pastikan Ollama berjalan di " +
+          endpoint,
       );
     }
     throw new OllamaError("network", `Error jaringan: ${err.message}`);
@@ -295,13 +366,19 @@ async function sendToOllama(endpoint, requestBody) {
     if (response.status === 404) {
       throw new OllamaError(
         "model_not_found",
-        `Model "${requestBody.model}" tidak ditemukan. Jalankan: ollama pull ${requestBody.model}`
+        `Model "${requestBody.model}" tidak ditemukan. Jalankan: ollama pull ${requestBody.model}`,
       );
     }
     if (response.status === 500) {
-      throw new OllamaError("server_error", `Ollama server error: ${errorBody}`);
+      throw new OllamaError(
+        "server_error",
+        `Ollama server error: ${errorBody}`,
+      );
     }
-    throw new OllamaError("http_error", `HTTP ${response.status}: ${errorBody}`);
+    throw new OllamaError(
+      "http_error",
+      `HTTP ${response.status}: ${errorBody}`,
+    );
   }
 
   let data;
@@ -312,12 +389,13 @@ async function sendToOllama(endpoint, requestBody) {
   }
 
   const content =
-    data?.message?.content ||
-    data?.choices?.[0]?.message?.content ||
-    null;
+    data?.message?.content || data?.choices?.[0]?.message?.content || null;
 
   if (!content) {
-    throw new OllamaError("empty_response", "Ollama mengembalikan response kosong. Coba lagi.");
+    throw new OllamaError(
+      "empty_response",
+      "Ollama mengembalikan response kosong. Coba lagi.",
+    );
   }
 
   return content;
@@ -334,11 +412,11 @@ async function sendToOllama(endpoint, requestBody) {
 async function checkOllamaStatus(baseUrl) {
   try {
     const res = await fetch(`${baseUrl}/api/tags`, {
-      signal: AbortSignal.timeout(5000)
+      signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) return { ok: false, models: [] };
     const data = await res.json();
-    const models = (data.models || []).map(m => m.name);
+    const models = (data.models || []).map((m) => m.name);
     return { ok: true, models };
   } catch {
     return { ok: false, models: [] };
@@ -356,13 +434,13 @@ async function checkOllamaStatus(baseUrl) {
 async function checkModelReady(baseUrl, modelName) {
   try {
     const res = await fetch(`${baseUrl}/api/ps`, {
-      signal: AbortSignal.timeout(4000)
+      signal: AbortSignal.timeout(4000),
     });
     if (!res.ok) return false;
     const data = await res.json();
     const loadedModels = data.models || [];
     // Cek apakah nama model cocok (partial match untuk handle tag seperti :latest)
-    return loadedModels.some(m => {
+    return loadedModels.some((m) => {
       const name = m.name || m.model || "";
       return name === modelName || name.startsWith(modelName.split(":")[0]);
     });
@@ -393,12 +471,12 @@ class OllamaError extends Error {
 function getOllamaErrorHelp(err) {
   const helps = {
     connection: `⚠️ Ollama tidak berjalan.\n\n**Cara memulai Ollama:**\n1. Buka terminal\n2. Jalankan: \`ollama serve\`\n3. Pastikan berjalan di port 11434`,
-        model_not_found: `⚠️ ${err.message}\n\n**Download model:**\n\`ollama pull llama3.2:3b\``,
+    model_not_found: `⚠️ ${err.message}\n\n**Download model:**\n\`ollama pull llama3.2:3b\``,
     timeout: `⏱️ ${err.message}\n\nModel mungkin sedang loading ke VRAM. Coba kirim ulang pertanyaan.`,
     server_error: `🔴 ${err.message}`,
     parse_error: `⚠️ ${err.message}`,
     empty_response: `⚠️ ${err.message}`,
-    http_error: `🔴 ${err.message}`
+    http_error: `🔴 ${err.message}`,
   };
   return helps[err.type] || `❌ Error: ${err.message}`;
 }
@@ -420,7 +498,8 @@ function getMockResponse(userMessage, campusMemory) {
   const beasiswa = campusMemory?.beasiswa;
 
   if (msg.includes("syarat") && msg.includes("daftar")) {
-    const syarat = pendaftaran?.syarat_umum?.join("\n• ") || "Informasi tidak tersedia";
+    const syarat =
+      pendaftaran?.syarat_umum?.join("\n• ") || "Informasi tidak tersedia";
     return `**Syarat Pendaftaran ${kampus?.nama || "Kampus"}:**\n\n• ${syarat}\n\n📞 Info lebih lanjut: Hubungi PMB di ${pendaftaran?.kontak_pmb?.whatsapp || "-"}`;
   }
 
@@ -435,21 +514,34 @@ function getMockResponse(userMessage, campusMemory) {
     return `**Cara Pengisian KRS:**\n\n${steps}\n\n📞 Hubungi BAAK: ${campusMemory?.layanan_akademik?.kontak_baak?.telepon || "-"}`;
   }
 
-  if (msg.includes("lokasi") || msg.includes("alamat") || msg.includes("di mana")) {
+  if (
+    msg.includes("lokasi") ||
+    msg.includes("alamat") ||
+    msg.includes("di mana")
+  ) {
     const lokasi = kampus?.lokasi;
     return `**Lokasi ${kampus?.nama}:**\n\n📍 ${lokasi?.alamat}, ${lokasi?.kota}, ${lokasi?.provinsi} ${lokasi?.kode_pos}\n\n🗺️ ${lokasi?.petunjuk_arah || ""}`;
   }
 
   if (msg.includes("beasiswa")) {
-    const list = beasiswa?.map(b => `• **${b.nama}** — ${b.cakupan}`).join("\n") || "Informasi tidak tersedia";
+    const list =
+      beasiswa?.map((b) => `• **${b.nama}** — ${b.cakupan}`).join("\n") ||
+      "Informasi tidak tersedia";
     return `**Beasiswa Tersedia:**\n\n${list}\n\n📞 Hubungi Bagian Kemahasiswaan untuk detail.`;
   }
 
-  if (msg.includes("prodi") || msg.includes("jurusan") || msg.includes("fakultas")) {
+  if (
+    msg.includes("prodi") ||
+    msg.includes("jurusan") ||
+    msg.includes("fakultas")
+  ) {
     const fakultas = campusMemory?.fakultas_dan_prodi;
-    const list = fakultas?.map(f =>
-      `**${f.fakultas}:** ${f.prodi.map(p => p.nama).join(", ")}`
-    ).join("\n") || "Informasi tidak tersedia";
+    const list =
+      fakultas
+        ?.map(
+          (f) => `**${f.fakultas}:** ${f.prodi.map((p) => p.nama).join(", ")}`,
+        )
+        .join("\n") || "Informasi tidak tersedia";
     return `**Program Studi yang Tersedia:**\n\n${list}`;
   }
 

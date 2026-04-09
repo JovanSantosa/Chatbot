@@ -1,15 +1,17 @@
-# Start Project — UTN Bot
+# Start Project — LTU Bot
 
 Panduan ini menjelaskan cara menjalankan proyek `ChatBot` di laptop lain.
 
 ## 1. Ringkasan
 
 Proyek ini adalah aplikasi web statis:
+
 - `index.html` sebagai entry point
 - `css/style.css` untuk styling
 - `js/app.js`, `js/ollama.js`, dan `js/data.js` untuk logic dan integrasi Ollama
 
 Aplikasi dapat dijalankan dengan:
+
 - `Ollama` lokal + browser
 - Atau `Docker Compose` jika ingin menjalankan web dan Ollama dalam container
 
@@ -18,6 +20,7 @@ Aplikasi dapat dijalankan dengan:
 ## 2. Prasyarat
 
 Laptop lain harus memiliki salah satu dari berikut:
+
 - Browser modern (Chrome, Edge, Firefox)
 - Ollama terpasang dan model tersedia
 - Atau Docker Desktop jika ingin menggunakan Docker Compose
@@ -25,6 +28,7 @@ Laptop lain harus memiliki salah satu dari berikut:
 ### 2.1. Ollama
 
 Jika Anda ingin menggunakan kemampuan AI sesungguhnya, install Ollama:
+
 - Download dari: https://ollama.ai
 
 Kemudian download model default yang digunakan proyek:
@@ -43,6 +47,7 @@ ollama serve
 ```
 
 3. Buka `index.html` di browser:
+
 - Klik dua kali file `index.html`
 - Atau jalankan di Windows:
 
@@ -59,6 +64,7 @@ http://localhost:11434
 5. Mulai tanya dalam kotak chat.
 
 ### Catatan
+
 - Jika Ollama tidak dapat dijangkau, aplikasi akan otomatis masuk `Demo Mode`.
 - Untuk menghindari masalah CORS, jalankan file lewat Live Server atau gunakan Docker.
 
@@ -76,10 +82,11 @@ docker compose up --build
 3. Akses aplikasi di browser:
 
 ```
-http://localhost:8080
+http://localhost:8080.
 ```
 
 ### Catatan penting
+
 - `docker-compose.yml` sudah mengatur service `web` dan `ollama`.
 - Service `web` melayani static site lewat Nginx.
 - Service `ollama` membuka port `11434`.
@@ -115,4 +122,4 @@ ChatBot/
 
 ---
 
-Selamat menjalankan proyek UTN Bot di laptop lain!
+Selamat menjalankan proyek LTU Bot di laptop lain!
