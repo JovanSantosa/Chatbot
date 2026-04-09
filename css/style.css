@@ -80,13 +80,18 @@ body {
 
 /* ─── Layout Utama ───────────────────────────────────────── */
 .app-container {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 0px;
+  grid-template-rows: auto 1fr;
   height: 100vh;
   max-width: 1600px;
   margin: 0 auto;
-  position: relative;
+  transition: grid-template-columns var(--transition-slow);
   overflow: hidden;
+}
+
+body.sidebar-open .app-container {
+  grid-template-columns: 1fr var(--sidebar-width);
 }
 
 /* ─── Header ─────────────────────────────────────────────── */
@@ -227,10 +232,12 @@ body {
 /* ─── Chat Section ───────────────────────────────────────── */
 .chat-section {
   display: flex;
+  grid-column: 1;
   flex-direction: column;
   background: var(--bg);
   overflow: hidden;
   position: relative;
+  min-width: 0;
 }
 
 /* Panel chat */
@@ -598,24 +605,14 @@ body {
 
 /* ─── Sidebar ─────────────────────────────────────────────── */
 .sidebar {
-  position: absolute;
-  top: 60px; /* Header height */
-  right: 0;
-  bottom: 0;
-  width: min(var(--sidebar-width), 90vw);
+  grid-column: 2;
+  width: 100%;
   background: var(--surface);
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transform: translateX(100%);
-  transition: transform var(--transition-slow);
-  z-index: 200;
-  box-shadow: var(--shadow-lg);
-}
-
-.sidebar.open {
-  transform: translateX(0);
+  box-shadow: -1px 0 10px rgba(0,0,0,0.03); /* Subtle inner shadow */
 }
 
 /* Tabs navigasi sidebar */
@@ -971,7 +968,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 /* ─── Overlay ───────────────────────────────────── */
 .overlay {
-  display: block;
+  display: none; /* hidden on desktop */
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.4);
@@ -1008,6 +1005,44 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 /* ─── Responsive: Mobile ──────────────────────────────────── */
 @media (max-width: 900px) {
+  .app-container {
+    display: block; /* Switch off grid layout */
+  }
+
+  body.sidebar-open .app-container {
+    display: block;
+  }
+
+  .chat-section {
+    height: calc(100vh - 60px);
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 60px;
+    right: 0;
+    bottom: 0;
+    width: min(var(--sidebar-width), 90vw);
+    transform: translateX(100%);
+    transition: transform var(--transition-slow);
+    z-index: 200;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .overlay {
+    display: block; /* enable on mobile */
+    pointer-events: none; /* Handle toggling inside overlay */
+  }
+
+  body.sidebar-open .overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
   .header-right .status-badge .status-text {
     display: none;
   }
