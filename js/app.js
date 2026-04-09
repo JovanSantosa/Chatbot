@@ -666,9 +666,6 @@ function renderWelcomeMessage() {
       <div class="welcome-icon">🎓</div>
       <h2 class="welcome-title">Selamat Datang di LTU Bot</h2>
       <p class="welcome-subtitle">Asisten virtual FAQ 嶺東科技大學. Tanyakan apa saja seputar kampus!</p>
-      <div class="quick-questions-grid">
-        ${QUICK_QUESTIONS.map((q) => `<button class="quick-q" onclick="quickAsk('${q.replace(/'/g, "\\'")}')"> ${q}</button>`).join("")}
-      </div>
     </div>
   `;
 }

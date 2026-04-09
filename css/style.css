@@ -80,12 +80,13 @@ body {
 
 /* ─── Layout Utama ───────────────────────────────────────── */
 .app-container {
-  display: grid;
-  grid-template-columns: 1fr var(--sidebar-width);
-  grid-template-rows: auto 1fr;
+  display: flex;
+  flex-direction: column;
   height: 100vh;
   max-width: 1600px;
   margin: 0 auto;
+  position: relative;
+  overflow: hidden;
 }
 
 /* ─── Header ─────────────────────────────────────────────── */
@@ -216,7 +217,6 @@ body {
   color: var(--text-secondary);
   cursor: pointer;
   transition: var(--transition);
-  display: none; /* Mobile only */
 }
 
 .btn-icon:hover {
@@ -598,11 +598,24 @@ body {
 
 /* ─── Sidebar ─────────────────────────────────────────────── */
 .sidebar {
+  position: absolute;
+  top: 60px; /* Header height */
+  right: 0;
+  bottom: 0;
+  width: min(var(--sidebar-width), 90vw);
   background: var(--surface);
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transform: translateX(100%);
+  transition: transform var(--transition-slow);
+  z-index: 200;
+  box-shadow: var(--shadow-lg);
+}
+
+.sidebar.open {
+  transform: translateX(0);
 }
 
 /* Tabs navigasi sidebar */
@@ -956,19 +969,21 @@ input[type="range"]::-webkit-slider-thumb:hover {
   transform: translateX(-50%) translateY(0);
 }
 
-/* ─── Overlay (mobile) ───────────────────────────────────── */
+/* ─── Overlay ───────────────────────────────────── */
 .overlay {
-  display: none;
+  display: block;
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.4);
   z-index: 199;
   opacity: 0;
+  pointer-events: none;
   transition: opacity var(--transition-slow);
 }
 
 .overlay.visible {
   opacity: 1;
+  pointer-events: auto;
 }
 
 /* ─── Animasi Spin (loading) ──────────────────────────────── */
@@ -993,39 +1008,6 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 /* ─── Responsive: Mobile ──────────────────────────────────── */
 @media (max-width: 900px) {
-  .app-container {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-  }
-
-  .chat-section {
-    height: calc(100vh - 60px);
-  }
-
-  .sidebar {
-    position: fixed;
-    top: 60px;
-    right: 0;
-    bottom: 0;
-    width: min(var(--sidebar-width), 90vw);
-    transform: translateX(100%);
-    transition: transform var(--transition-slow);
-    z-index: 200;
-    box-shadow: var(--shadow-lg);
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .overlay {
-    display: block;
-  }
-
-  .btn-icon {
-    display: flex;
-  }
-
   .header-right .status-badge .status-text {
     display: none;
   }
