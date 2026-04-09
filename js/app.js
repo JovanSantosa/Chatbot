@@ -664,7 +664,7 @@ function renderWelcomeMessage() {
   chatPanel.innerHTML = `
     <div class="welcome-state">
       <div class="welcome-icon">🎓</div>
-      <h2 class="welcome-title">Selamat Datang di LTU Bots</h2>
+      <h2 class="welcome-title">Selamat Datang di LTU Botsss</h2>
       <p class="welcome-subtitle">Asisten virtual FAQ 嶺東科技大學. Tanyakan apa saja seputar kampus!</p>
     </div>
   `;
