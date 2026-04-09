@@ -19,15 +19,11 @@ function filterCampusMemory(memory, userMessage) {
   // Mapping keyword → key di campus memory
   const sections = [
     { keys: ["daftar", "pendaftaran", "registrasi", "pmb", "syarat", "jalur"], field: "pendaftaran" },
-    { keys: ["biaya", "ukt", "spp", "bayar", "keuangan", "golongan"], field: "biaya_pendidikan" },
+    { keys: ["biaya", "ukt", "spp", "bayar", "keuangan", "golongan"], field: "biayapendidikan" },
     { keys: ["beasiswa", "kip", "bantuan", "keringanan"], field: "beasiswa" },
-    { keys: ["prodi", "jurusan", "program", "studi", "fakultas", "informatika", "manajemen", "akuntansi", "sipil", "elektro", "sistem informasi"], field: "fakultas_dan_prodi" },
-    { keys: ["krs", "akademik", "nilai", "transkip", "surat keterangan", "baak", "ips", "ipk", "semester", "skripsi"], field: "layanan_akademik" },
-    { keys: ["fasilitas", "lab", "perpustakaan", "wifi", "kantin", "masjid", "sport", "asrama", "gym", "kolam"], field: "fasilitas" },
-    { keys: ["kontak", "telepon", "email", "hubungi", "bagian"], field: "kontak_penting" },
-    { keys: ["jam", "buka", "tutup", "layanan", "operasional"], field: "jam_layanan_kampus" },
-    { keys: ["kalender", "jadwal", "uts", "uas", "ujian", "libur", "akademik"], field: "kalender_akademik" },
-    { keys: ["ukm", "kegiatan", "organisasi", "ormawa", "hima", "ekskul"], field: "unit_kegiatan_mahasiswa" }
+    { keys: ["prodi", "jurusan", "program", "studi", "fakultas", "informatika", "manajemen", "akuntansi", "sipil", "elektro", "sistem informasi"], field: "fakultasdanprodi" },
+    { keys: ["kontak", "telepon", "email", "hubungi", "bagian"], field: "kontakpenting" },
+    { keys: ["fasilitas", "lab", "perpustakaan", "wifi", "kantin", "masjid", "sport", "asrama", "gym", "kolam"], field: "fasilitas" }
   ];
 
   let matched = false;
@@ -418,40 +414,35 @@ function getMockResponse(userMessage, campusMemory) {
   const kampus = campusMemory?.kampus;
   const pendaftaran = campusMemory?.pendaftaran;
   const beasiswa = campusMemory?.beasiswa;
+  const biayapendidikan = campusMemory?.biayapendidikan;
+  const fakultasdanprodi = campusMemory?.fakultasdanprodi;
 
   if (msg.includes("syarat") && msg.includes("daftar")) {
-    const syarat = pendaftaran?.syarat_umum?.join("\n• ") || "Informasi tidak tersedia";
-    return `**Syarat Pendaftaran ${kampus?.nama || "Kampus"}:**\n\n• ${syarat}\n\n📞 Info lebih lanjut: Hubungi PMB di ${pendaftaran?.kontak_pmb?.whatsapp || "-"}`;
+    const syarat = pendaftaran?.syaratumum?.join("\n• ") || "Informasi tidak tersedia";
+    return `**Syarat Pendaftaran ${kampus?.nama || "Kampus"}:**\n\n• ${syarat}\n\n📞 Info lebih lanjut: Hubungi PMB di ${pendaftaran?.kontakpmb?.whatsapp || "-"}`;
   }
 
   if (msg.includes("biaya") && msg.includes("daftar")) {
-    const biaya = pendaftaran?.biaya_pendaftaran;
-    return `**Biaya Pendaftaran:**\n\n• Jalur Prestasi: ${biaya?.jalur_prestasi || "-"}\n• Jalur Reguler: ${biaya?.jalur_reguler || "-"}\n• Jalur Transfer: ${biaya?.jalur_transfer || "-"}\n\n📞 Konfirmasi ke PMB: ${pendaftaran?.kontak_pmb?.telepon || "-"}`;
-  }
-
-  if (msg.includes("krs")) {
-    const krs = campusMemory?.layanan_akademik?.krs;
-    const steps = krs?.cara_pengisian?.join("\n") || "Informasi tidak tersedia";
-    return `**Cara Pengisian KRS:**\n\n${steps}\n\n📞 Hubungi BAAK: ${campusMemory?.layanan_akademik?.kontak_baak?.telepon || "-"}`;
+    const ukt = biayapendidikan?.uktpersemester?.map(u => `• Golingan ${u.golongan}: ${u.biaya} (${u.syarat})`).join("\n") || "-";
+    return `**Biaya UKT per Semester:**\n\n${ukt}\n\n📞 Konfirmasi ke Keuangan: ${biayapendidikan?.kontakkeuangan?.telepon || "-"}`;
   }
 
   if (msg.includes("lokasi") || msg.includes("alamat") || msg.includes("di mana")) {
     const lokasi = kampus?.lokasi;
-    return `**Lokasi ${kampus?.nama}:**\n\n📍 ${lokasi?.alamat}, ${lokasi?.kota}, ${lokasi?.provinsi} ${lokasi?.kode_pos}\n\n🗺️ ${lokasi?.petunjuk_arah || ""}`;
+    return `**Lokasi ${kampus?.nama}:**\n\n📍 ${lokasi?.alamat}, ${lokasi?.kodepos}\n\n🗺️ ${lokasi?.petunjukarah || ""}`;
   }
 
   if (msg.includes("beasiswa")) {
-    const list = beasiswa?.map(b => `• **${b.nama}** — ${b.cakupan}`).join("\n") || "Informasi tidak tersedia";
-    return `**Beasiswa Tersedia:**\n\n${list}\n\n📞 Hubungi Bagian Kemahasiswaan untuk detail.`;
+    const list = beasiswa?.map(b => `• **${b.nama}** (${b.penyelenggara}) — ${b.cakupan}`).join("\n") || "Informasi tidak tersedia";
+    return `**Beasiswa Tersedia:**\n\n${list}\n\n📞 Hubungi bagian terkait untuk detail.`;
   }
 
   if (msg.includes("prodi") || msg.includes("jurusan") || msg.includes("fakultas")) {
-    const fakultas = campusMemory?.fakultas_dan_prodi;
-    const list = fakultas?.map(f =>
-      `**${f.fakultas}:** ${f.prodi.map(p => p.nama).join(", ")}`
+    const list = fakultasdanprodi?.fakultas?.map(f =>
+      `**${f.nama} (${f.akreditasi}):** ${f.prodi.map(p => `${p.nama} (${p.akreditasi})`).join(", ")}`
     ).join("\n") || "Informasi tidak tersedia";
     return `**Program Studi yang Tersedia:**\n\n${list}`;
   }
 
-  return `🤖 *[MODE DEMO — Ollama tidak aktif]*\n\nSaya menerima pertanyaan Anda: "*${userMessage}*"\n\nUntuk jawaban lengkap, pastikan Ollama berjalan:\n\`\`\`\nollama serve\n\`\`\`\n\nUntuk saat ini, coba pertanyaan seperti:\n• Apa saja syarat pendaftaran?\n• Berapa biaya pendaftaran?\n• Bagaimana cara isi KRS?\n• Di mana lokasi kampus?\n• Apakah ada beasiswa?`;
+  return `🤖 *[MODE DEMO — Ollama tidak aktif]*\n\nSaya menerima pertanyaan Anda: "*${userMessage}*"\n\nUntuk jawaban lengkap, pastikan Ollama berjalan atau data tersedia di memory.\n\nUntuk saat ini, coba pertanyaan seperti:\n• Apa saja syarat pendaftaran?\n• Berapa biaya UKT?\n• Di mana lokasi kampus?\n• Apakah ada beasiswa?\n• Prodi apa saja yang ada?`;
 }

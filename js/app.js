@@ -14,12 +14,12 @@ const AppState = {
   // Getter: konfigurasi model dari form
   get modelConfig() {
     return {
-      model: document.getElementById("cfg-model")?.value || DEFAULT_MODEL_CONFIG.model,
+      model: document.getElementById("cfg-model")?.value || DEFAULTMODELCONFIG.model,
       stream: true, // Selalu gunakan streaming
       options: {
         temperature: parseFloat(document.getElementById("cfg-temperature")?.value) || 0.1,
         top_p: parseFloat(document.getElementById("cfg-top-p")?.value) || 0.9,
-        num_ctx: parseInt(document.getElementById("cfg-num-ctx")?.value) || 4096
+        num_ctx: parseInt(document.getElementById("cfg-num-ctx")?.value) || 8192
       }
     };
   },
@@ -31,7 +31,7 @@ const AppState = {
 
   // Getter: system prompt dari textarea
   get systemPrompt() {
-    return document.getElementById("system-prompt")?.value || DEFAULT_SYSTEM_PROMPT;
+    return document.getElementById("system-prompt")?.value || DEFAULTSYSTEMPROMPT;
   },
 
   // Getter: campus memory dari textarea (parsed JSON)
@@ -58,12 +58,12 @@ document.addEventListener("DOMContentLoaded", async () => {
  */
 function initUI() {
   // Isi nilai default di panel konfigurasi
-  document.getElementById("system-prompt").value = DEFAULT_SYSTEM_PROMPT;
-  document.getElementById("campus-memory").value = JSON.stringify(DEFAULT_CAMPUS_MEMORY, null, 2);
-  document.getElementById("cfg-model").value = DEFAULT_MODEL_CONFIG.model;
-  document.getElementById("cfg-temperature").value = DEFAULT_MODEL_CONFIG.options.temperature;
-  document.getElementById("cfg-top-p").value = DEFAULT_MODEL_CONFIG.options.top_p;
-  document.getElementById("cfg-num-ctx").value = DEFAULT_MODEL_CONFIG.options.num_ctx;
+  document.getElementById("system-prompt").value = DEFAULTSYSTEMPROMPT;
+  document.getElementById("campus-memory").value = JSON.stringify(DEFAULTCAMPUSMEMORY, null, 2);
+  document.getElementById("cfg-model").value = DEFAULTMODELCONFIG.model;
+  document.getElementById("cfg-temperature").value = DEFAULTMODELCONFIG.options.temperature;
+  document.getElementById("cfg-top-p").value = DEFAULTMODELCONFIG.options.topp;
+  document.getElementById("cfg-num-ctx").value = DEFAULTMODELCONFIG.options.numctx;
   document.getElementById("cfg-endpoint").value = AppState.ollamaBaseUrl;
   document.getElementById("cfg-use-memory").checked = AppState.useMemory;
 
@@ -128,22 +128,8 @@ function initUI() {
   // Validasi JSON memory secara real-time
   document.getElementById("campus-memory").addEventListener("input", validateMemoryJSON);
 
-  // Tab panel sidebar
-  document.querySelectorAll(".tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
-  });
-
-  // Quick questions
-  document.querySelectorAll(".quick-q").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.getElementById("user-input").value = btn.textContent;
-      sendMessage();
-    });
-  });
-
-  // Toggle sidebar di mobile
-  document.getElementById("toggle-sidebar-btn")?.addEventListener("click", toggleSidebar);
-  document.getElementById("overlay")?.addEventListener("click", toggleSidebar);
+  // Quick questions (di welcome screen) — handled via onclick in HTML
+  // No old sidebar toggle needed; handled by index.html inline script
 }
 
 // ─── Cek status koneksi Ollama ─────────────────────────────
@@ -170,7 +156,7 @@ async function refreshModelStatus() {
   if (AppState.mockMode) return;
 
   const baseUrl = document.getElementById("cfg-endpoint")?.value || AppState.ollamaBaseUrl;
-  const modelName = document.getElementById("cfg-model")?.value || DEFAULT_MODEL_CONFIG.model;
+  const modelName = document.getElementById("cfg-model")?.value || DEFAULTMODELCONFIG.model;
 
   const isReady = await checkModelReady(baseUrl, modelName);
   AppState.modelReady = isReady;
@@ -187,28 +173,34 @@ async function refreshModelStatus() {
  * @param {"offline"|"online"|"ready"} state
  */
 function updateStatusBadge(state) {
+  // Update status di admin panel
   const indicator = document.getElementById("status-indicator");
   const statusText = document.getElementById("status-text");
-  if (!indicator || !statusText) return;
+  // Update status di header
+  const indicatorH = document.getElementById("status-indicator-header");
+  const statusTextH = document.getElementById("status-text-header");
 
+  let dotClass, label;
   switch (state) {
     case "ready":
-      indicator.className = "status-dot ready";
-      statusText.textContent = "Model Siap";
-      statusText.title = "Model sudah loaded di VRAM — siap menjawab!";
+      dotClass = "status-dot ready";
+      label = "Model Siap";
       break;
     case "online":
-      indicator.className = "status-dot online";
-      statusText.textContent = "Ollama Online";
-      statusText.title = "Ollama aktif, model belum dimuat ke memori";
+      dotClass = "status-dot online";
+      label = "UDN Bot Online";
       break;
     case "offline":
     default:
-      indicator.className = "status-dot offline";
-      statusText.textContent = "Ollama Offline (Demo Mode)";
-      statusText.title = "Jalankan: ollama serve";
+      dotClass = "status-dot offline";
+      label = "Ollama Offline";
       break;
   }
+
+  if (indicator) indicator.className = dotClass;
+  if (statusText) statusText.textContent = label;
+  if (indicatorH) indicatorH.className = dotClass;
+  if (statusTextH) statusTextH.textContent = label;
 }
 
 // ─── Kirim pesan ──────────────────────────────────────────
@@ -372,7 +364,7 @@ function appendMessage(role, content) {
 
   const meta = document.createElement("div");
   meta.className = "message-meta";
-  meta.textContent = role === "user" ? "Kamu" : role === "error" ? "⚠️ System" : "🤖 UTN Bot";
+  meta.textContent = role === "user" ? "Kamu" : role === "error" ? "⚠️ System" : "🤖 UDN Bot";
 
   if (role === "assistant") {
     const copyBtn = document.createElement("button");
@@ -403,7 +395,7 @@ function appendStreamingBubble() {
 
   const meta = document.createElement("div");
   meta.className = "message-meta";
-  meta.textContent = "🤖 UTN Bot";
+  meta.textContent = "🤖 UDN Bot";
 
   // Streaming indicator
   const streamIndicator = document.createElement("span");
@@ -505,7 +497,7 @@ function appendLoadingBubble() {
 
   const meta = document.createElement("div");
   meta.className = "message-meta";
-  meta.textContent = "🤖 UTN Bot";
+  meta.textContent = "🤖 UDN Bot";
 
   const bubble = document.createElement("div");
   bubble.className = "message-bubble assistant loading-bubble";
@@ -551,10 +543,10 @@ function renderWelcomeMessage() {
   chatPanel.innerHTML = `
     <div class="welcome-state">
       <div class="welcome-icon">🎓</div>
-      <h2 class="welcome-title">Selamat Datang di UTN Bot</h2>
-      <p class="welcome-subtitle">Asisten virtual FAQ Universitas Teknologi Nusantara. Tanyakan apa saja seputar kampus!</p>
+      <h2 class="welcome-title">Selamat Datang di UDN Bot</h2>
+      <p class="welcome-subtitle">Asisten virtual FAQ Universitas Dian Nuswantoro. Tanyakan apa saja seputar kampus!</p>
       <div class="quick-questions-grid">
-        ${QUICK_QUESTIONS.map(q => `<button class="quick-q" onclick="quickAsk('${q.replace(/'/g, "\\'")}')"> ${q}</button>`).join("")}
+        ${QUICKQUESTIONS.map(q => `<button class="quick-q" onclick="quickAsk('${q.replace(/'/g, "\\'")}')"> ${q}</button>`).join("")}
       </div>
     </div>
   `;
@@ -576,7 +568,7 @@ function quickAsk(question) {
  * Load ulang sample memory kampus ke textarea.
  */
 function loadSampleMemory() {
-  document.getElementById("campus-memory").value = JSON.stringify(DEFAULT_CAMPUS_MEMORY, null, 2);
+  document.getElementById("campus-memory").value = JSON.stringify(DEFAULTCAMPUSMEMORY, null, 2);
   clearMemoryError();
   showToast("Sample memory kampus berhasil dimuat!");
 }
@@ -618,7 +610,7 @@ function generateRequestBodyPreview() {
  * Update badge model aktif.
  */
 function updateModelBadge() {
-  const model = document.getElementById("cfg-model")?.value || DEFAULT_MODEL_CONFIG.model;
+  const model = document.getElementById("cfg-model")?.value || DEFAULTMODELCONFIG.model;
   document.getElementById("active-model-badge").textContent = model;
 }
 
