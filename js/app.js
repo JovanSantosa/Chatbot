@@ -43,17 +43,30 @@ const AppState = {
     );
   },
 
-  // Getter: campus memory dari textarea (parsed JSON)
-  get campusMemory() {
-    try {
-      return JSON.parse(
-        document.getElementById("campus-memory")?.value || "{}",
-      );
-    } catch {
-      return null;
-    }
+  // Getter: bahasa jawaban yang dipilih pengguna
+  get responseLanguage() {
+    return (
+      document.getElementById("cfg-language")?.value || "english"
+    ).toString();
   },
 };
+
+function getEffectiveSystemPrompt() {
+  const basePrompt = AppState.systemPrompt;
+  const langLabels = {
+    english: "English",
+    traditional_chinese: "Traditional Chinese (Taiwan)",
+    vietnamese: "Vietnamese",
+    indonesian: "Indonesian",
+    thai: "Thai",
+  };
+  const lang = AppState.responseLanguage;
+  const selectedLabel = langLabels[lang] || "English";
+
+  return `${basePrompt.trim()}
+
+Answer in ${selectedLabel}. If the user asks in another one of the supported languages, keep responding in the selected language.`;
+}
 
 function loadSavedSettings() {
   const raw = localStorage.getItem("ltuBotSettings");
@@ -82,6 +95,7 @@ function saveSettings() {
       DEFAULT_MODEL_CONFIG.options.num_ctx,
     useMemory:
       document.getElementById("cfg-use-memory")?.checked ?? AppState.useMemory,
+    language: document.getElementById("cfg-language")?.value || "english",
   };
   localStorage.setItem("ltuBotSettings", JSON.stringify(settings));
 }
@@ -96,6 +110,7 @@ function applySavedSettings() {
   const topPInput = document.getElementById("cfg-top-p");
   const numCtxInput = document.getElementById("cfg-num-ctx");
   const useMemoryInput = document.getElementById("cfg-use-memory");
+  const languageInput = document.getElementById("cfg-language");
 
   if (endpointInput)
     endpointInput.value = saved.endpoint || AppState.ollamaBaseUrl;
@@ -109,6 +124,7 @@ function applySavedSettings() {
     numCtxInput.value = saved.num_ctx ?? DEFAULT_MODEL_CONFIG.options.num_ctx;
   if (useMemoryInput)
     useMemoryInput.checked = saved.useMemory ?? AppState.useMemory;
+  if (languageInput) languageInput.value = saved.language || "english";
 }
 
 // ─── Inisialisasi aplikasi ─────────────────────────────────
@@ -124,6 +140,9 @@ document.addEventListener("DOMContentLoaded", async () => {
  * Inisialisasi semua element UI dan event listener.
  */
 function initUI() {
+  console.log("initUI started");
+
+  // Isi nilai default di panel konfigurasi
   // Isi nilai default di panel konfigurasi
   document.getElementById("system-prompt").value = DEFAULT_SYSTEM_PROMPT;
   document.getElementById("campus-memory").value = JSON.stringify(
@@ -140,6 +159,7 @@ function initUI() {
     DEFAULT_MODEL_CONFIG.options.num_ctx;
   document.getElementById("cfg-endpoint").value = AppState.ollamaBaseUrl;
   document.getElementById("cfg-use-memory").checked = AppState.useMemory;
+  document.getElementById("cfg-language").value = "english";
 
   // Muat konfigurasi tersimpan jika ada
   applySavedSettings();
@@ -182,15 +202,20 @@ function initUI() {
     saveSettings();
   });
 
-  // Input pertanyaan: Enter untuk kirim
   document
-    .getElementById("user-input")
-    .addEventListener("keydown", function (e) {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
+    .getElementById("cfg-language")
+    .addEventListener("change", saveSettings);
+
+  // Input pertanyaan: Enter untuk kirim
+  const userInput = document.getElementById("user-input");
+  console.log("user-input element:", userInput);
+  userInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+  console.log("user-input keydown listener added");
 
   // Auto-resize textarea input
   document.getElementById("user-input").addEventListener("input", function () {
@@ -199,7 +224,10 @@ function initUI() {
   });
 
   // Tombol kirim
-  document.getElementById("send-btn").addEventListener("click", sendMessage);
+  const sendBtn = document.getElementById("send-btn");
+  console.log("send-btn element:", sendBtn);
+  sendBtn.addEventListener("click", sendMessage);
+  console.log("send-btn listener added");
 
   // Tombol reset chat
   document
@@ -242,6 +270,8 @@ function initUI() {
     .getElementById("toggle-sidebar-btn")
     ?.addEventListener("click", toggleSidebar);
   document.getElementById("overlay")?.addEventListener("click", toggleSidebar);
+
+  console.log("initUI finished");
 }
 
 // ─── Cek status koneksi Ollama ─────────────────────────────
@@ -314,6 +344,8 @@ function updateStatusBadge(state) {
 
 // ─── Kirim pesan ──────────────────────────────────────────
 async function sendMessage() {
+  console.log("sendMessage called");
+
   if (AppState.isLoading) return;
 
   const input = document.getElementById("user-input");
@@ -362,7 +394,7 @@ async function sendMessage() {
     } else {
       // ── REAL MODE: Kirim ke Ollama dengan STREAMING ──
       const messages = buildMessages(
-        AppState.systemPrompt,
+        getEffectiveSystemPrompt(),
         AppState.useMemory ? campusMemory : null, // Kirim null jika memory dimatikan
         AppState.chatHistory.slice(0, -1), // Exclude pesan user yang baru saja ditambah
         userMessage,

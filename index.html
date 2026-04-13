@@ -117,8 +117,17 @@
         aria-label="Panel konfigurasi chatbot"
       >
         <!-- Header Sidebar -->
-        <div style="padding: 15px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; background: var(--surface);">
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <div
+          style="
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--surface);
+          "
+        >
+          <div style="display: flex; gap: 8px; flex-wrap: wrap">
             <!-- Badge model aktif -->
             <div class="model-badge" title="Model AI yang sedang digunakan">
               <svg
@@ -148,14 +157,18 @@
               <span id="status-text">Memeriksa...</span>
             </div>
           </div>
-          
-          <div style="display: flex; gap: 8px;">
+
+          <div style="display: flex; gap: 8px">
             <!-- Tombol reset -->
             <button
               class="btn btn-danger btn-full"
               id="reset-chat-btn"
               title="Reset percakapan"
-              style="padding: 8px 12px; font-size: 0.8rem; justify-content: center;"
+              style="
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                justify-content: center;
+              "
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -482,6 +495,36 @@
                   "
                   >ollama pull llama3.2:3b</code
                 >
+              </p>
+            </div>
+
+            <!-- Bahasa Jawaban -->
+            <div class="form-group">
+              <label class="form-label" for="cfg-language"
+                >Bahasa Jawaban</label
+              >
+              <select
+                id="cfg-language"
+                class="form-input"
+                aria-label="Bahasa jawaban chatbot"
+              >
+                <option value="english">English</option>
+                <option value="traditional_chinese">
+                  Traditional Chinese (Taiwan)
+                </option>
+                <option value="vietnamese">Vietnamese</option>
+                <option value="indonesian">Bahasa Indonesia</option>
+                <option value="thai">Thai</option>
+              </select>
+              <p
+                style="
+                  font-size: 0.7rem;
+                  color: var(--text-muted);
+                  margin-top: 5px;
+                "
+              >
+                Pilih bahasa jawaban chatbot. Model akan menjawab sesuai pilihan
+                ini.
               </p>
             </div>
 

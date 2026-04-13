@@ -18,6 +18,7 @@ ATURAN KETAT YANG HARUS DIPATUHI:
 6. Jika pertanyaan tidak relevan dengan kampus, tolak dengan sopan dan arahkan ke topik kampus.
 7. Selalu arahkan ke unit yang tepat: BAAK untuk akademik, PMB untuk pendaftaran, Bagian Keuangan untuk biaya, dll.
 8. Gunakan bahasa mandarin taiwan yang sopan, jelas, dan mudah dipahami.
+9. Jika pengguna meminta jawaban dalam Bahasa Inggris, Bahasa Mandarin Tradisional Taiwan, Bahasa Vietnam, Bahasa Indonesia, atau Bahasa Thailand, jawab dalam bahasa yang diminta.
 
 FORMAT JAWABAN:
 - Jawab dengan singkat dan langsung ke poinnya.
@@ -47,14 +48,16 @@ const DEFAULT_CAMPUS_MEMORY = {
     tahun_berdiri: 2005,
     status: "Terakreditasi A+ oleh Kementerian Pendidikan Taiwan",
     lokasi: {
-      alamat: "No. 1, Lingdong Rd",
+      alamat: "1, Ling tung Rd.",
       kota: "Taichung",
       distrik: "Nantun",
-      kode_pos: "408284",
+      kode_pos: "408",
       koordinat: "24.1378° N, 120.6086° E",
     },
-    website: "ltu.edu.tw",
-    email_umum: "ltu1210@teamail.ltu.edu.tw",
+    website: "www.ltu.edu.tw",
+    telepon: "886-4-23892088",
+    fax: "886-4-36015202",
+    email_umum: "ltu1211@teamail.ltu.edu.tw",
   },
 
   pendaftaran: {
@@ -92,21 +95,77 @@ const DEFAULT_CAMPUS_MEMORY = {
       jalur_transfer: "Rp 250.000",
     },
     cara_daftar: [
-      "Buka website pendaftaran pmb.utn.ac.id",
-      "Pilih jalur pendaftaran yang sesuai",
-      "Isi formulir pendaftaran online",
-      "Upload dokumen yang diperlukan",
-      "Bayar biaya pendaftaran melalui transfer bank atau virtual account",
-      "Cetak bukti pendaftaran",
-      "Datang ke kampus untuk verifikasi dokumen (jika diperlukan)",
+      "Kunjungi halaman pendaftaran resmi Ling Tung University untuk informasi terbaru.",
+      "Siapkan dokumen akademik dan bukti dukungan finansial.",
+      "Ikuti petunjuk pendaftaran internasional yang disediakan di situs Admissions.",
     ],
     kontak_pmb: {
       unit: "Panitia Penerimaan Mahasiswa Baru (PMB)",
       telepon: "886-4-23892088",
-      faksimile: "886-4-36011113",
+      faksimile: "886-4-36015202",
       email: "ltu1211@teamail.ltu.edu.tw",
       jam_layanan: "Senin-Jumat: 08.00-17.00",
     },
+  },
+
+  international_applicants: {
+    biaya_tahunan: {
+      tuition_and_fees: "US $ 2700/Year",
+      housing_and_living: "US $ 670/Year",
+      health_insurance: "US $ 10/Year",
+      total: "US $ 3380 USD/Year",
+    },
+    kontak: {
+      kantor: "International Affairs Center",
+      kantor_tambahan: ["Office of Academic Affairs", "Student Affairs Office"],
+      telepon: "886-4-23892088",
+    },
+    beasiswa_total: "NT$30,000,000 per year",
+    beasiswa: [
+      {
+        nama: "Excellent Student Scholarship in Entrance Examination",
+        deskripsi:
+          "Diberikan kepada mahasiswa baru LTU dengan prestasi akademik sangat baik dalam ujian masuk.",
+      },
+      {
+        nama: "Excellent Foreign Students Scholarship",
+        deskripsi:
+          "Beasiswa khusus untuk mahasiswa internasional dengan prestasi akademik yang sangat baik; biaya kuliah bisa terpotong penuh.",
+      },
+    ],
+    syarat: [
+      "Untuk program sarjana: lulusan SMA/SMK/MA.",
+      "Untuk program pascasarjana: lulusan perguruan tinggi dengan gelar B.A.",
+      "Memiliki kemampuan Mandarin yang memadai.",
+      "Menyediakan surat keterangan dukungan finansial.",
+    ],
+  },
+
+  fee_info: {
+    tuition_and_miscellaneous_fees: "US $ 2700/yr ~ US $ 3000/yr",
+    on_campus_accommodation: "US $ 670/yr ~ US $ 700/yr",
+    remark:
+      "For detailed information, please contact General Affairs Office - Cashier Division: 886-4-23892088 ext.1841",
+  },
+
+  international_admission: {
+    deskripsi:
+      "International admission tersedia untuk program sarjana, magister, dan doktoral di beberapa jurusan terpilih.",
+    jurusan: [
+      "Information Management (B.B.A.)",
+      "Information Technology (B.S.)",
+      "Visual Communication Design (B.Des.)",
+      "Business Administration (B.B.A.)",
+      "Digital Content Design (B.Des.)",
+      "Fashion Design (B.Des.)",
+      "Marketing and Logistics Management (B.B.A.)",
+      "Creative Product Design (B.Des.)",
+      "Tourism and Leisure Management (B.B.A.)",
+      "International Business (B.B.A.)",
+      "Applied Foreign Languages (B.B.A.)",
+      "Finance (B.B.A.)",
+      "Accounting and Information Technology (B.B.A.)",
+    ],
   },
 
   fakultas_dan_prodi: [
@@ -192,76 +251,147 @@ const DEFAULT_CAMPUS_MEMORY = {
           nama: "Graduate Institute of Finance",
           jenjang: "S1",
           akreditasi: "B",
-          gelar: "S.T",
+          gelar: "M.B.A",
           konsentrasi: ["Elektronika", "Tenaga Listrik", "Telekomunikasi"],
         },
         {
           nama: "Graduate Institute of Accounting and Information Technology",
           jenjang: "S1",
           akreditasi: "B",
-          gelar: "S.T",
+          gelar: "M.B.A.",
           konsentrasi: ["Elektronika", "Tenaga Listrik", "Telekomunikasi"],
         },
         {
           nama: "Graduate Institute of Financial and Economic Law",
           jenjang: "S1",
           akreditasi: "B",
-          gelar: "S.T",
+          gelar: "LL.M",
           konsentrasi: ["Elektronika", "Tenaga Listrik", "Telekomunikasi"],
         },
         {
           nama: "Department of Finance",
           jenjang: "S1",
           akreditasi: "B",
-          gelar: "S.T",
+          gelar: "M.B.A.",
           konsentrasi: ["Elektronika", "Tenaga Listrik", "Telekomunikasi"],
         },
         {
           nama: "Department of Accounting and Information Technology",
           jenjang: "S1",
           akreditasi: "B",
-          gelar: "S.T",
+          gelar: "B.B.A.",
           konsentrasi: ["Elektronika", "Tenaga Listrik", "Telekomunikasi"],
         },
       ],
     },
     {
-      fakultas: "Fashion design",
+      fakultas: "Fashion",
       akreditasi: "A",
       prodi: [
         {
-          nama: "Manajemen",
-          jenjang: "S1",
+          nama: "Graduate Institute of Fashion Stylist Design",
+          jenjang: "S2",
           akreditasi: "A",
-          gelar: "S.M",
+          gelar: "M.Des.",
           konsentrasi: ["Pemasaran", "Keuangan", "SDM", "Operasional"],
         },
         {
-          nama: "Akuntansi",
+          nama: "Department of Fashion Business and Merchandising",
           jenjang: "S1",
           akreditasi: "A",
-          gelar: "S.Ak",
+          konsentrasi: ["Akuntansi Keuangan", "Perpajakan", "Audit"],
+        },
+        {
+          nama: "Department of Fashion and Accessories Design",
+          jenjang: "S1",
+          akreditasi: "A",
+          konsentrasi: ["Akuntansi Keuangan", "Perpajakan", "Audit"],
+        },
+        {
+          nama: "Department of Fashion Stylist Design",
+          jenjang: "S1",
+          akreditasi: "A",
+          gelar: "B.Des.",
+          konsentrasi: ["Pemasaran", "Keuangan", "SDM", "Operasional"],
+        },
+      ],
+    },
+    {
+      fakultas: "Design",
+      akreditasi: "A",
+      prodi: [
+        {
+          nama: "Graduate Institute of Digital Content Design",
+          jenjang: "S2",
+          akreditasi: "A",
+          gelar: "M.Des.",
+          konsentrasi: ["E-Business", "Sistem Enterprise", "Data Analytics"],
+        },
+        {
+          nama: "Graduate Institute of Visual Communication Design",
+          jenjang: "S2",
+          akreditasi: "A",
+          gelar: "M.Des.",
+          konsentrasi: ["Komputasi", "Data Science", "Keamanan Siber"],
+        },
+        {
+          nama: "Graduate Institute of Creative Product Design",
+          jenjang: "S1",
+          akreditasi: "B",
+          konsentrasi: ["Akuntansi Keuangan", "Perpajakan", "Audit"],
+        },
+        {
+          nama: "Department of Visual Communication Design",
+          jenjang: "S1",
+          akreditasi: "A",
+          gelar: "B.Des.",
+          konsentrasi: ["Pemasaran", "Keuangan", "SDM", "Operasional"],
+        },
+        {
+          nama: "Department of Digital Content Design",
+          jenjang: "S1",
+          akreditasi: "A",
+          gelar: "B.Des.",
+          konsentrasi: ["Pemasaran", "Keuangan", "SDM", "Operasional"],
+        },
+        {
+          nama: "Department of Creative Product Design",
+          jenjang: "S1",
+          akreditasi: "B",
           konsentrasi: ["Akuntansi Keuangan", "Perpajakan", "Audit"],
         },
       ],
     },
     {
-      fakultas: "Fakultas Ilmu Komputer",
+      fakultas: "Information Science",
       akreditasi: "A",
       prodi: [
         {
-          nama: "Sistem Informasi",
-          jenjang: "S1",
+          nama: "Graduate Institute of Applied Information Technology",
+          jenjang: "S2",
           akreditasi: "A",
-          gelar: "S.SI",
-          konsentrasi: ["E-Business", "Sistem Enterprise", "Data Analytics"],
+          gelar: "M.S.",
+          konsentrasi: ["Pemasaran", "Keuangan", "SDM", "Operasional"],
         },
         {
-          nama: "Ilmu Komputer",
+          nama: "Graduate Institute of Information Management and Applications",
           jenjang: "S1",
-          akreditasi: "B",
-          gelar: "S.Kom",
-          konsentrasi: ["Komputasi", "Data Science", "Keamanan Siber"],
+          akreditasi: "A",
+          konsentrasi: ["Akuntansi Keuangan", "Perpajakan", "Audit"],
+        },
+        {
+          nama: "Department of Information Technology",
+          jenjang: "S1",
+          akreditasi: "A",
+          gelar: "B.S.",
+          konsentrasi: ["Akuntansi Keuangan", "Perpajakan", "Audit"],
+        },
+        {
+          nama: "Department of Information Management",
+          jenjang: "S1",
+          akreditasi: "A",
+          gelar: "B.B.A.",
+          konsentrasi: ["Pemasaran", "Keuangan", "SDM", "Operasional"],
         },
       ],
     },
@@ -300,6 +430,24 @@ const DEFAULT_CAMPUS_MEMORY = {
   },
 
   beasiswa: [
+    {
+      nama: "Excellent Student Scholarship in Entrance Examination",
+      penyelenggara: "Ling Tung University",
+      cakupan:
+        "Beasiswa untuk mahasiswa baru dengan prestasi akademik unggul dalam ujian masuk.",
+      syarat: ["Prestasi akademik sangat baik dalam ujian masuk"],
+      deskripsi:
+        "Diberikan kepada mahasiswa baru LTU yang menunjukkan nilai ujian masuk terbaik.",
+    },
+    {
+      nama: "Excellent Foreign Students Scholarship",
+      penyelenggara: "Ling Tung University",
+      cakupan:
+        "Potongan penuh biaya kuliah untuk mahasiswa internasional berprestasi.",
+      syarat: ["Mahasiswa asing dengan catatan akademik sangat baik"],
+      deskripsi:
+        "Beasiswa khusus untuk mahasiswa internasional yang memenuhi standar akademik tinggi.",
+    },
     {
       nama: "Beasiswa KIP Kuliah",
       penyelenggara: "Pemerintah (Kemendikbudristek)",
@@ -386,8 +534,70 @@ const DEFAULT_CAMPUS_MEMORY = {
     },
   },
 
+  office_of_academic_affairs: {
+    nama: "Office of Academic Affairs",
+    deskripsi:
+      "The office deals with academic affairs consisting of three divisions of Curriculum, Registrar's Office and Curriculum Development Center. The staff members in this office include a Dean of Academic Affairs, a secretary, two directors and several clerks in each division. Based on the school's policy concerning academic affairs, the Dean makes a blueprint for the overall administrative work, which is executed by related divisions.",
+    telepon: "886-4-23892088 ext.1601-1602",
+    faksimile: "886-4-23895293",
+    email: "ltu1600@teamail.ltu.edu.tw",
+    situs_web: {
+      english: "http://www.ltu.edu.tw/~aao/eng/e1_top.html",
+      chinese: "http://www.ltu.edu.tw/~aao/",
+    },
+    lokasi: "Taichung, Taiwan, R.O.C.",
+  },
+
+  administrative_offices: [
+    "Continuing Education Office",
+    "General Affairs Office",
+    "International Affairs Center",
+    "Library",
+    "Office of Academic Affairs",
+    "Office of President",
+    "Office of Vice-President",
+    "Secretariat",
+    "Student Affairs Office",
+  ],
+
+  academic_projects: [
+    "3D Animation Classroom",
+    "Center for Educational Multimedia Resources",
+    "Center for Multimedia Networking and Post Production",
+    "Class for Modern Technology and Information Networking",
+    "Computer Game Industry-Academic Collaboration Center",
+    "Digital Art Gallery",
+    "Digital Audio Lab",
+    "Digital Power Creativity Studio",
+    "Linear Editing Room",
+    "Non-linear Editing Room",
+    "Puppet Animation Lab",
+    "Video Networking and Post Production Classroom",
+    "Virtual Film Studio",
+    "Virtual Reality Gallery",
+  ],
+
+  sister_schools: [
+    "University of Nevada, Reno, U.S.A.",
+    "The University of Tennessee at Martin, U.S.A.",
+    "Thomas More College, U.S.A.",
+    "University of Santo Tomas, Philippines",
+    "Singapore Management University",
+    "Bond University, Australia",
+    "Sapporo University, Japan",
+    "Kookmin University, Korea",
+    "Vietnam National University, Hanoi",
+    "National Economics University, Vietnam",
+    "P'azmary P'eter Catholic University Budapest, Hungary",
+    "Apor Vilmos Catholic College, Hungary",
+    "Hungarian University of Craft and Design, Hungary",
+    "Soochow University, P.R.O.C.",
+    "Shanghai Second Polytechnic University, P.R.O.C.",
+    "Guangdong Lingnan Institute of Technology, P.R.O.C.",
+  ],
+
   fasilitas: {
-    akademik: [
+    akademik: ["
       "Perpustakaan digital dan fisik (koleksi > 50.000 judul)",
       "Laboratorium komputer (200+ unit PC)",
       "Laboratorium bahasa",
