@@ -597,7 +597,7 @@ const DEFAULT_CAMPUS_MEMORY = {
   ],
 
   fasilitas: {
-    akademik: ["
+    akademik: [
       "Perpustakaan digital dan fisik (koleksi > 50.000 judul)",
       "Laboratorium komputer (200+ unit PC)",
       "Laboratorium bahasa",

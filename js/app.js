@@ -128,13 +128,20 @@ function applySavedSettings() {
 }
 
 // ─── Inisialisasi aplikasi ─────────────────────────────────
-document.addEventListener("DOMContentLoaded", async () => {
+async function startApp() {
   initUI();
+  renderWelcomeMessage();
   await checkOllamaConnection();
   // Cek koneksi tiap 30 detik, cek readiness model tiap 15 detik
   setInterval(checkOllamaConnection, 30000);
   setInterval(refreshModelStatus, 15000);
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", startApp);
+} else {
+  startApp();
+}
 
 /**
  * Inisialisasi semua element UI dan event listener.
@@ -927,4 +934,3 @@ function simulateDelay(ms) {
 }
 
 // Render welcome message saat load
-document.addEventListener("DOMContentLoaded", renderWelcomeMessage);
